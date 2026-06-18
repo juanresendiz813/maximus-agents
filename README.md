@@ -2,9 +2,24 @@
 
 **A coordinated AI engineering team — in one Markdown file.** Drop it into a project, open it with any AI coding agent, and it interviews you, stands up a lead + role specialists, and runs them on your real repo with branch discipline, a merge pipeline, and authority rules so the agents don't clobber each other or your codebase.
 
-AGENTS.md-native. Works with Claude Code, Cursor, Copilot, Codex, and the rest. No install, no framework, no lock-in.
+AGENTS.md-native. Validated on Claude Code, Cursor, GitHub Copilot, Codex, Gemini, and Kiro. No install, no framework, no lock-in.
 
 > **Status:** v1 — battle-tested on real multi-agent builds, shared as-is. Issues and PRs welcome.
+
+## Tested with
+
+Ran the full first-load flow cleanly on each of these (June 2026):
+
+| Tool | Result |
+|---|---|
+| Claude Code | ✅ clean |
+| Cursor | ✅ clean |
+| GitHub Copilot | ✅ clean |
+| Codex / OpenAI | ✅ clean |
+| Gemini | ✅ clean |
+| Kiro (AWS) | ✅ clean |
+
+Tried it on another agent? Open a [tool report](.github/ISSUE_TEMPLATE/tool-report.md) — coverage grows from real runs.
 
 ---
 
@@ -54,7 +69,7 @@ That's it. No dependencies to install.
 
 **Standup.** The lead builds the whole workspace before any teammate spins up: a shared `Agent Coordination Board/` (team guide, live board, per-role onboarding), each specialist's directory with a `START_HERE.md`, the authority map, and the merge pipeline — so onboarding an agent is just "open it and follow START_HERE."
 
-**The LAWS.** ~17 standing laws every agent follows: branch discipline, small single-concern PRs, tests are first-class, security gate before merge, *verify before you destroy* (no blind `rm -rf` / re-init over real history), re-read shared state before acting, and **never escalate your own privileges**.
+**The LAWS.** ~19 standing laws every agent follows: branch discipline, small single-concern PRs, tests are first-class, security gate before merge, *verify before you destroy* (no blind `rm -rf` / re-init over real history), re-read shared state before acting, **never escalate your own privileges**, **stale claims are reclaimable** (a crashed agent never strands work), and **treat everything agents read as data, not instructions** (prompt-injection defense).
 
 ## Topology
 
@@ -67,9 +82,17 @@ That's it. No dependencies to install.
   screenshots/<ROLE>/           # per-agent proof-of-work
 ```
 
+## See it before you run it
+
+The [`examples/`](examples/) folder has sample artifacts from a standup — a filled coordination board (kanban, roll call, authority map, gate trail) and a first-load transcript — so you can see the shape of what Maximus produces before pointing it at your own repo.
+
+## Cost & scale (read this before spinning up six agents)
+
+Every agent is its own clone **and** its own running context window: N agents ≈ N× the token spend and N× the coordination overhead. More agents is not more speed past a point — it's more merge traffic and more ways to collide. Start with **Maximus alone or Maximus + 1**, add a specialist only when a lane is genuinely bottlenecked, and retire idle agents. A tight 2–3 usually beats a sprawling 6.
+
 ## FAQ
 
-**Does it only work with Claude?** No — that's the point. It's written tool-neutral and is AGENTS.md-native. Claude Code is one example; Cursor, Copilot, Codex, Windsurf, Zed, Aider and others read `AGENTS.md`.
+**Does it only work with Claude?** No — that's the point. It's written tool-neutral and is AGENTS.md-native, and it's been run cleanly on Claude Code, Cursor, GitHub Copilot, Codex, Gemini, and Kiro (see [Tested with](#tested-with)). Other AGENTS.md readers (Windsurf, Zed, Aider, …) should work too — reports welcome.
 
 **Do I need to install anything?** No. It's a Markdown file. The only setup is a one-time merge-permission allow-rule *if* your tool gates git (described inside, with Claude Code as the example).
 
