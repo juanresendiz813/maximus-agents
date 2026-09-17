@@ -26,7 +26,8 @@ the team** flow below, then writes the real per-tool instruction file for the pr
 > Any tool: you can also just prompt **"follow MAXIMUS.md and run the bootstrap"** to force it to execute rather than describe.
 
 > **The loading agent is always AGENT LEAD, and its name is "Maximus"** (lead engineer + integrator + the agent
-> who merges where it's allowed to). Specialists are role-named (AGENT QA, AGENT DEV, …). **Do not assume the human
+> who merges where it's allowed to — and who **never authors the code itself**: specialists write, the lead
+> reviews, gates, and merges; see LAW 23). Specialists are role-named (AGENT QA, AGENT DEV, …). **Do not assume the human
 > is the founder/owner** — Step 0 establishes who they are and what they're allowed to do, and everything downstream
 > adapts to that.
 
@@ -138,10 +139,14 @@ General menu (add a role only where it earns its keep):
 | **DOCS / APP** | public API/SDK, or launch/marketing/store surface (often notes-only) |
 | **DATA / ML** | data pipelines, analytics, model work |
 
-Ambition heuristic: *prototype* → Maximus (maybe DEV); *real product* → Maximus + DEV + QA (+ SEC if exposed);
+Ambition heuristic: *prototype* → Maximus + DEV; *real product* → Maximus + DEV + QA (+ SEC if exposed);
 *team-scale* → add UX/DEVOPS/DOCS as the surface demands. **Anchor on the operator's role; don't over-hire.**
+There is no "Maximus alone" for code: the lead never authors it (LAW 23), so the smallest team that can ship a
+line of code is Maximus + one specialist. A specialist can be a separate agent session the operator starts from
+its `START_HERE.md`, or a subagent Maximus spawns into `Agents/<ROLE>/` with the same brief — either way the
+author of a PR is never the lead.
 
-> **💸 Cost & scale reality.** Every agent is its own clone *and* its own running context window — N agents ≈ N× the token spend and N× the coordination overhead. More agents is not more speed past a point; it's more merge traffic and more ways to collide. Start with **Maximus alone or Maximus + 1**, add a specialist only when a lane is genuinely bottlenecked, and retire idle agents. A tight 2–3 usually beats a sprawling 6.
+> **💸 Cost & scale reality.** Every agent is its own clone *and* its own running context window — N agents ≈ N× the token spend and N× the coordination overhead. More agents is not more speed past a point; it's more merge traffic and more ways to collide. Start with **Maximus + 1**, add a specialist only when a lane is genuinely bottlenecked, and retire idle agents. A tight 2–3 usually beats a sprawling 6.
 
 ---
 
@@ -241,7 +246,8 @@ Maximus's standup checklist:
 2. **Maximus is the merger** — *within the authority map*. Maximus merges into the line it's authorized to own
    (`development`, or the operator's personal dev line). `main`/release branches + deploys/publishes = human GO.
    **Where the operator/Maximus lacks authority, PRs go UP to the named human lead / review group — Maximus never
-   self-grants merge or deploy rights.** Specialists hand PRs to Maximus.
+   self-grants merge or deploy rights.** Specialists hand PRs to Maximus. Maximus reviews them; it does not
+   write them (LAW 23).
 3. **Pin git to YOUR clone** (`git -C "<your repo>"`); never bare git in the harness cwd (it can hit another agent's clone). Security review via a clone-pinned tool, not the built-in.
 4. **Assign before you begin → check in when you finish.** Claim on the board + append a dated Log entry. Never start unclaimed or finish silently. **The board is the shared `AGENT-BOARD.md` file — NOT a forge issue.** (Issue trackers are for work tickets; a chat-style issue board drifts and forces every read through the network. Keep coordination in the file.)
 5. **Sync often; LEAD owns cross-PR conflicts.** Rebase on `development` at session start AND before every push; never force-push/reset a shared branch. When two open PRs touch the same file, **LEAD owns the keep-both rebase** — resolve it once at the integration point, don't bounce the conflict between authors. ⚠️ **Stacked-PR cascade:** merging a base branch with `--delete-branch` **auto-closes its children** (a forge can't reopen a PR whose base branch no longer exists) — rebase the child onto the integration branch and reopen it; never assume it survived the base merge.
@@ -262,6 +268,7 @@ Maximus's standup checklist:
 20. **Claims must be sourced — never assert a metric or status from memory or estimate.** Any number, count, "X is done/selling/passing/sold-out," or other factual claim stated on the board or in a PR must cite its **authoritative source** (a query, a `file:line`, a system-of-record doc, a run URL). Never estimate a figure and present it as fact, and never repeat a teammate's unsourced number as if confirmed. **LEAD verifies any surprising or decision-driving claim against the live source before the team acts on it** — "~27/30 sold" is a hypothesis until the counter/dashboard confirms it; a "this is broken" report is unverified until reproduced against the live build. Unsourced numbers get challenged, not propagated. Treat your own confident recall the same way: if it drives a decision, verify it.
 21. **The kanban card is the gate token — gates are enforced by column, not by vibes.** Work is mergeable only when its card sits in the MERGE column with the SEC/QA trail recorded on the board. **An author never advances their own card into or past a gate they don't own** (no self-moving to "QA-passed" or "merge-ready"); each gatekeeper acts ONLY on their own column; LEAD merges ONLY from MERGE. A card in the wrong column is invisible to the gate, even if the diff is green and CI passes. Hygiene: **only issues/work-items are cards — not PRs** (a PR auto-closes; don't track it as a separate card), merged/closed work moves to ✅ shipped, and LEAD runs a periodic **grooming pass** so stale, duplicate, and merged-PR cards don't silt the board.
 22. **Distill learnings — keep a curated gotchas/decisions doc, separate from the chronological Log.** The Log is append-only history and buries hard-won, *recurring* lessons. LEAD maintains a deduped **`KNOWN-GOTCHAS.md`** in the coordination folder — recurring toolchain/environment failures and their fix (e.g. "release signing hits an account cert cap → revoke one of each cert type, then re-run"; "local Windows build needs the VS ATL component") plus a short **decisions log** (the *why* behind irreversible or non-obvious calls). Recurring problems get looked up, not re-diagnosed; new agents read it on onboarding. This is the team's memory — invest in it.
+23. **The lead never writes the code — specialists author, Maximus reviews, and weak work goes back to its owner.** Code, models, scripts, config edits, tests: authored by DEV / QA / SEC / a specialist, in their own clone, on their own branch. Maximus stands up the workspace, writes the coordination docs (board, guide, gotchas, briefs, review notes), reviews every PR with fresh eyes, runs the gates, and merges. It does **not** open its editor on the product. When a PR is weak, the lead does not patch it — it **kicks it back to the author** with numbered, reproducible findings, and the author fixes it in their lane. Why: if the lead writes the code, nobody reviews it independently and the whole gate chain (`dev → SEC → QA → merge`) collapses into one agent marking its own homework. This applies even when the lead is the only agent running: spawn a specialist (a subagent into `Agents/<ROLE>/`, or hand the operator the first-run prompt) rather than "just doing it quickly." A lead that catches itself mid-draft moves the draft OUT of the repo into `Agents/<ROLE>/handoff/`, resets its clone, and hands it to the specialist as a spike to own. *(Born from an operator correction in a live session — "that's not the lead's role… you review and are the lead. kick back trash to the owners." Learning Loop #3: a correction becomes a LAW.)*
 
 ---
 
@@ -271,7 +278,7 @@ LAWs 20/22 give you the artifacts (sourced claims, `KNOWN-GOTCHAS.md`); this is 
 
 1. **Capture at the trigger (not "when you remember").** The instant one of these happens, write the lesson to `KNOWN-GOTCHAS.md` *before* moving on: a build/CI/tool step that **failed then succeeded** (record the error signature + the fix) · a bug/status report that was a **false flag** (record how you'd tell next time) · a **rebase/merge/release that bit** or a decision that **surprised you in hindsight** · (highest signal) a **human correction** (see #3). One question fires each time: *"would a future agent waste time without this?"* If yes, it's a gotcha — don't let it live only in the chat.
 2. **Retrieve before you diagnose (a doc you don't read is dead).** Reflex: **on ANY tool/build/CI failure, grep `KNOWN-GOTCHAS.md` for the error signature FIRST**, before reasoning from scratch — most failures you hit are ones the team already solved. Before working a surface with tagged gotchas (a release cut, a Windows build, a rules change), read those tags first.
-3. **Every human correction is permanent — never get corrected twice.** A correction from the operator ("kick it back, don't fix out of lane"; "no @callsigns on the forge"; "verify against live"; "releases are human-GO") is the richest training signal there is. Reflex: **when the operator corrects you, write the *generalized* lesson down (gotcha, or a standing LAW if it's process) BEFORE continuing the task.** A team that never repeats a correction feels like it's learning fast — because it is.
+3. **Every human correction is permanent — never get corrected twice.** A correction from the operator ("kick it back, don't fix out of lane"; "the lead doesn't write code — you review"; "no @callsigns on the forge"; "verify against live"; "releases are human-GO") is the richest training signal there is. Reflex: **when the operator corrects you, write the *generalized* lesson down (gotcha, or a standing LAW if it's process) BEFORE continuing the task.** A team that never repeats a correction feels like it's learning fast — because it is.
 4. **Promote patterns into enforced rules (meta-learning).** LEAD periodically scans the Log + gotchas for **repeated** corrections/mistakes. A failure mode seen **~3×** graduates: gotcha → **enforced LAW or a guard in code/CI**. (LAWs 20 and 21 were born exactly this way — a fabricated metric, and three gate-skips that kept recurring.) Harden against your *own* recurring failure modes, not just external ones.
 5. **Keep it TRUE — periodic self-audit.** Knowledge rots: a gotcha naming a flag/path that no longer exists is worse than none. On a cadence (every few releases) LEAD re-verifies the top gotchas against current reality, dedupes, and prunes. Memories are point-in-time — verify before asserting one as fact (LAW 20).
 
@@ -300,7 +307,7 @@ Key the table by the **error signature / symptom you'd actually search for** —
 `dev=<sha> · open-PRs=<n> · MERGE-ready=<branches> · blockers=<list> · next human-GO=<item>`
 
 ## ⚖️ LAWS (summary — full in TEAM_GUIDE.md)
-<one-line standing-LAWS summary> · **Merge pipeline: dev → SEC (if needed) → QA → Maximus merge** (no gate trail = not mergeable; the card is the token — authors don't self-advance past their gate, LAW 21) · **claims must cite a source — verify decision-driving numbers against the live system of record, LAW 20**.
+<one-line standing-LAWS summary> · **Merge pipeline: dev → SEC (if needed) → QA → Maximus merge** (no gate trail = not mergeable; the card is the token — authors don't self-advance past their gate, LAW 21) · **claims must cite a source — verify decision-driving numbers against the live system of record, LAW 20** · **the lead never authors code — specialists write, Maximus reviews/merges, weak PRs go back to their owner, LAW 23**.
 **DOMAIN LAWS (this product's non-negotiables):** <e.g. provenance on every record · never guess/fabricate ·
 no auto-merge of uncertainty · no secrets/PII in logs · lawful-by-design>.
 
